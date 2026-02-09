@@ -12,7 +12,7 @@
 	<artifactId>coffee</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Coffee</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Coffee project for Spring Boot</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -47,6 +47,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>cicd</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
