@@ -1,0 +1,43 @@
+name: Spring Boot CI # GitHub Actions 화면에 표시되는 글자
+
+on:
+  push:
+    branches:
+      - master # 기본 브랜치 이름 확인 : master 또는 main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+       # 빌드를 진행하기 위하여 GitHub 저장소의 코드를 Runner(가상 서버)에 clone 합니다.
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+       # 자바 실행 환경 준비 : Runner에 Java 21 버전 Temurin(OpenJDK 계열)을 설치하고 설정합니다
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven # Maven 의존성 캐시 적용(빌드 속도 안정적)
+
+
+      # 프로젝트를 실제로 빌드하는 영역
+      # 컴파일만 하고 테스트 하지 않음, CI에서는 빠르지만, 테스트까지 하려면 -DskipTests 명령어 삭제 요망
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Login to DockerHub
+
+      # DockerHub 로그인 보안 (중요)
+      # 경험상 여러 줄로 나누지 말고 1줄로 진행하세요.
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # Dockerfile을 이용해서 이미지 생성
+      - name: Build Docker Image
+        run: docker build -t ugcadman/cicd-springboot:latest -f SpringDockerFile .
+
+      # 생성한 Docker Image를 DockerHub에 업로드
+      - name: Push Docker Image
+        run: docker push ugcadman/cicd-springboot:latest
